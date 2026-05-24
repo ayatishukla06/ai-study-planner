@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <nav class="premium-nav" style="padding: 15px 40px; background: rgba(15, 15, 20, 0.8); backdrop-filter: blur(15px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(192, 132, 252, 0.2); position: sticky; top: 0; z-index: 1000;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <a href="{{ url_for('dashboard') }}" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem; filter: drop-shadow(0 0 8px #c084fc);">🚀</span>
+            <span style="font-weight: 900; letter-spacing: 1px; color: white;">SYSTEM <span style="color: #c084fc;">PLANNER</span></span>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="background: #c084fc; color: black; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 0.7rem;">SCHOLAR</div>
+            <span style="font-size: 0.9rem; color: #a1a1aa;">User: <strong style="color: white;">{{ current_user.username }}</strong></span>
+        </div>
+        
+        <a href="{{ url_for('logout') }}" style="color: #ff4d4d; text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 8px 16px; border: 1px solid rgba(255, 77, 77, 0.2); border-radius: 10px; transition: 0.3s;">Logout</a>
+    </div>
+</nav>
+    {% endif %}
+
+<div class="main-viewport">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-overlay">
+            {% for category, message in messages %}
+              <div class="system-alert alert-{{ category }}">
+                  <span class="alert-icon">🔔</span>
+                  <span class="alert-text">{{ message }}</span>
+                  <button class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+              </div>
+            {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <script>
+    // Automatically hide flash messages after 4 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.system-alert');
+        alerts.forEach(alert => {
+            alert.style.transition = "opacity 0.5s ease";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 400);
+        });
+    }, 2000);
+</script>
+
+    {% block content %}{% endblock %}
+</div>
+</body>
+</html>

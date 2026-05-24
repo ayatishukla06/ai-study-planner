@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+
+    <div class="glass-card" style="margin-bottom: 35px; padding: 30px; border-radius: 24px; background: rgba(25, 25, 35, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h1 style="margin: 0; color: var(--accent-purple); font-size: 2rem; display: flex; align-items: center; gap: 12px;">
+            <span>🚀</span> <span>AI Study Planner</span>
+        </h1>
+        
+        <a href="{{ url_for('notes_page') }}" style="text-decoration: none; color: var(--accent-purple); font-weight: 700; font-size: 0.85rem; padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(192, 132, 252, 0.4); background: rgba(192, 132, 252, 0.1); transition: 0.3s; display: flex; align-items: center; gap: 8px; width: fit-content;">
+            <span>🧠 Deep Study Notes</span>
+            <span style="font-size: 1rem;">→</span>
+        </a>
+    </div>
+
+    <form action="{{ url_for('generate_plan') }}" method="POST" style="display: flex; gap: 20px; align-items: flex-end;">
+        <div style="flex: 2;">
+            <label style="color: var(--text-dim); font-size: 0.9rem; display: block; margin-bottom: 8px;">When is your Exam?</label>
+            <input type="date" name="exam_date" required style="width: 100%; padding: 12px; border-radius: 12px; background: #1e1e26; border: 1px solid rgba(255,255,255,0.1); color: white;">
+        </div>
+        <div style="flex: 1;">
+            <label style="color: var(--text-dim); font-size: 0.9rem; display: block; margin-bottom: 8px;">Study Hrs/Day</label>
+            <input type="number" name="daily_hours" value="2.5" step="0.5" min="1" max="12" required style="width: 100%; padding: 12px; border-radius: 12px; background: #1e1e26; border: 1px solid rgba(255,255,255,0.1); color: white;">
+        </div>
+        <button type="submit" class="btn-glow" style="flex: 1; padding: 12px 30px; background: var(--accent-purple); color: black; border: none; border-radius: 12px; font-weight: 700; height: 45px; cursor: pointer;">Generate AI Plan</button>
+    </form>
+</div>
+
+    <div class="main-grid" style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; align-items: start;">
+        
+        <div class="left-section">
+            <div class="glass-card" style="margin-bottom: 25px; padding: 25px; border-radius: 20px; background: rgba(25, 25, 35, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h2 style="margin-top: 0; font-size: 1.5rem;">📚 Add Subject</h2>
+                <form action="{{ url_for('add_subject') }}" method="POST" style="display: flex; gap: 10px;">
+                    <input type="text" name="subject_name" placeholder="e.g. Operating Systems" required style="flex-grow: 1; padding: 12px; border-radius: 10px; background: #1e1e26; border: 1px solid rgba(255,255,255,0.1); color: white;">
+                    <button type="submit" class="btn-glow" style="width: auto; padding: 10px 20px; background: var(--accent-purple); color: black; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">+ Create</button>
+                </form>
+            </div>
+
+            <div class="glass-card" style="margin-bottom: 25px; padding: 25px; border-radius: 20px; background: rgba(25, 25, 35, 0.7); border: 1px solid rgba(192, 132, 252, 0.3);">
+                <h2 style="margin-top: 0; font-size: 1.5rem;">📸 AI Syllabus Scanner</h2>
+                <form action="{{ url_for('upload_syllabus') }}" method="POST" enctype="multipart/form-data">
+                    <select name="subject_id" required style="width: 100%; padding: 12px; border-radius: 10px; background: #1e1e26; border: 1px solid rgba(255,255,255,0.1); color: white; margin-bottom: 15px;">
+                        <option value="" disabled selected>Select Subject...</option>
+                        {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="file" name="syllabus_file" accept="image/*" required style="width: 100%; padding: 10px; border-radius: 10px; background: #1e1e26; border: 1px solid rgba(255,255,255,0.1); color: white; margin-bottom: 15px;">
+                    <button type="submit" class="btn-glow" style="width: 100%; padding: 12px; background: var(--accent-purple); color: black; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">✨ Generate Topics with AI</button>
+                </form>
+            </div>
+
+            {% for subject in subjects %}
+                <div class="glass-card" style="margin-bottom: 25px; padding: 25px; border-radius: 20px; background: rgba(25, 25, 35, 0.7); border-left: 5px solid var(--accent-purple);">
+                    <div class="subject-header" data-subject-id="{{ subject.id }}" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h3 style="margin: 0; color: var(--accent-purple); font-size: 1.4rem;">{{ subject.name }}</h3>
+                            <span class="arrow-icon" id="arrow-{{ subject.id }}" style="transition: transform 0.3s ease;">▼</span>
+                        </div>
+                        <form action="{{ url_for('delete_subject', subject_id=subject.id) }}" method="POST" onsubmit="return confirm('Delete subject?');">
+                            <button type="submit" class="stop-prop" style="background: rgba(255, 77, 77, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d; padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">DELETE SUBJECT</button>
+                        </form>
+                    </div>
+
+                    <div style="margin: 15px 0 10px 0;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--accent-purple); font-weight: 800; margin-bottom: 5px;">
+                            <span>Progress</span>
+                            <span>EXP: <span id="xp-text-{{ subject.id }}">{{ subject.get_progress()|round|int }}</span>%</span>
+                        </div>
+                        <div style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden;">
+                            <div id="progress-fill-{{ subject.id }}" style="width: {{ subject.get_progress() }}%; height: 100%; background: var(--accent-purple); transition: 0.5s;"></div>
+                        </div>
+                    </div>
+
+                    <div class="topics-container" id="topics-{{ subject.id }}" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+                        <ul style="list-style: none; padding: 0;">
+                            {% for topic in subject.topics %}
+                                <li id="topic-item-{{ topic.id }}" style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); 
+                                    {% if topic.is_completed %} opacity: 0.4; text-decoration: line-through; font-style: italic; {% endif %}">
+                                    <span>{{ topic.title }}</span>
+                                    <span style="font-size: 0.8rem; color: var(--text-dim);">{{ topic.estimated_time }}m</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="schedule-section">
+            <div class="glass-card" style="margin-bottom: 25px; padding: 25px; border-radius: 20px; background: rgba(25, 25, 35, 0.7); text-align: center; border: 1px solid rgba(192, 132, 252, 0.3);">
+                <h3 style="margin: 0; color: var(--accent-purple);">⏱️ Focus Buff (Pomodoro)</h3>
+                <div id="timer-display" style="font-size: 3.5rem; font-weight: 800; color: white; margin: 15px 0;">25:00</div>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button id="timer-control" onclick="toggleTimer()" class="btn-glow" style="padding: 10px 30px; background: var(--accent-purple); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">Start Quest</button>
+                    <button onclick="resetTimer()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer;">Reset</button>
+                </div>
+            </div>
+
+            <div class="glass-card" style="padding: 25px; border-radius: 24px; background: rgba(25, 25, 35, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h2 style="margin-top: 0; font-size: 1.3rem; margin-bottom: 20px;">📅 Optimized Schedule</h2>
+                {% if plan_entries %}
+                    <div style="margin-top: 15px;">
+                        {% for entry in plan_entries %}
+                            <div style="background: rgba(192, 132, 252, 0.03); border: 1px solid rgba(192, 132, 252, 0.1); padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="flex: 1;">
+                                    <span style="color: var(--accent-purple); font-weight: 700; font-size: 0.7rem; display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        {{ entry.scheduled_date.strftime('%A, %d %b') if entry.scheduled_date else "Date Pending" }}
+                                    </span>
+                                    <strong style="font-size: 0.95rem; color: #eee; font-weight: 500;">{{ entry.topic.title }}</strong>
+                                </div>
+                                <button type="button" 
+                                        class="done-btn btn-glow" 
+                                        data-topic-id="{{ entry.topic_id }}"
+                                        data-subject-id="{{ entry.topic.subject_id }}" 
+                                        style="background: var(--accent-purple); color: black; padding: 6px 16px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; font-size: 0.75rem; width: fit-content; min-width: 80px; align-self: center;">
+                                    ✔ Done
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='pomodoro.js') }}"></script>
+<script src="{{ url_for('static', filename='quests.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-card">
+    <div class="sticker-icon">🎓</div>
+    <h2>Login</h2>
+    
+    <form action="{{ url_for('login') }}" method="POST">
+        <div class="input-container">
+            <label>Username or Email</label>
+            <input type="text" name="username" placeholder="username" required>
+        </div>
+        <div class="input-container">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="password" required>
+        </div>
+        <button type="submit" class="btn-pristd">Login →</button>
+    </form>
+    
+    <div style="margin-top: 30px;">
+        Don't have an account? <a href="{{ url_for('signup') }}" style="color: var(--accent-purple); text-decoration: none; font-weight: bold;">Sign Up here</a>
+    </div>
+</div>
+{% endblock %}
