@@ -1,4 +1,4 @@
-# 🚀 AI Study Planner (Scholar Edition)
+# 🚀 AI Study Planner 
 
 An intelligent, full-stack study management system designed to help engineering students master complex subjects. This application integrates an automated study scheduler with advanced AI features powered by Google's latest **Gemini 2.0 Flash API** to dynamically map out syllabi and summarize heavy technical documents.
 
